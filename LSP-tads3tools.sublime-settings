@@ -1,0 +1,28 @@
+// LSP-tads3tools — TADS3 language server settings
+// https://github.com/toerob/vscode-tads3tools
+{
+    // Command to launch the language server.
+    // ${server_path} is resolved by the plugin from the binary installed by
+    // "Tads3: Install Server". Override with an absolute path to use a
+    // custom build from a vscode-tads3tools/server directory instead.
+    "command": ["${server_path}", "--stdio"],
+
+    // Selector that activates the server — matches TADS3 source files.
+    "selector": "source.tads3",
+
+    // Settings forwarded to the server via workspace/configuration.
+    // TADS3 system headers/library files are resolved from the -source/-lib entries
+    // in the project's .t3m makefile, not from a setting here.
+    "settings": {
+        "tads3": {
+            "enablePreprocessorCodeLens": false
+        }
+    },
+
+    // Interpreter used by "Tads3: Run". Set to "qtads" or "htmltads" if preferred.
+    "interpreter": "frob",
+
+    // Optional: absolute path to the server binary.
+    // Leave empty to use the binary installed by "Tads3: Install Server".
+    "server_path": ""
+}

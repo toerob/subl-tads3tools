@@ -1,0 +1,26 @@
+[
+    {
+        "caption": "Tads3: Install Server",
+        "command": "tads3_install_server"
+    },
+    {
+        "caption": "Tads3: Parse",
+        "command": "tads3_parse"
+    },
+    {
+        "caption": "Tads3: Abort Parse",
+        "command": "tads3_abort_parse"
+    },
+    {
+        "caption": "Tads3: Build",
+        "command": "tads3_build"
+    },
+    {
+        "caption": "Tads3: Run",
+        "command": "tads3_run"
+    },
+    {
+        "caption": "Tads3: Select Makefile",
+        "command": "tads3_select_makefile"
+    }
+]

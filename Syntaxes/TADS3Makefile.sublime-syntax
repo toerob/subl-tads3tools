@@ -1,0 +1,37 @@
+%YAML 1.2
+---
+# TADS3 makefile syntax (.t3m files).
+name: TADS3 Makefile
+file_extensions:
+  - t3m
+scope: source.tads3makefile
+
+contexts:
+  main:
+    - include: comments
+    - include: flags
+    - include: strings
+    - include: paths
+
+  comments:
+    - match: '#.*$'
+      scope: comment.line.number-sign.tads3makefile
+
+  # Compiler / linker flags like -o, -lib, -source, -D, -I
+  flags:
+    - match: '\s(-\w+)'
+      captures:
+        1: keyword.other.flag.tads3makefile
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.tads3makefile
+      push:
+        - meta_scope: string.quoted.double.tads3makefile
+        - match: '"'
+          scope: punctuation.definition.string.end.tads3makefile
+          pop: true
+
+  paths:
+    - match: '[^\s#"]+\.(t|h|t3o|t3x|t3m|tl)\b'
+      scope: string.unquoted.path.tads3makefile

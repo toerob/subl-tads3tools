@@ -1,0 +1,19 @@
+{
+    // Runs the same "Tads3: Build" command as the Command Palette, so Cmd+B /
+    // Ctrl+B picks it up automatically for .t files without any extra config.
+    // Selector-based auto-detection requires "Automatic" under
+    // Tools > Build System (the default).
+    "target": "tads3_build",
+    "selector": "source.tads3",
+
+    "variants": [
+        {
+            "name": "Run",
+            "target": "tads3_run"
+        },
+        {
+            "name": "Parse",
+            "target": "tads3_parse"
+        }
+    ]
+}

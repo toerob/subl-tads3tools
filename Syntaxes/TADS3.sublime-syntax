@@ -1,0 +1,202 @@
+%YAML 1.2
+---
+# TADS3 (Text Adventure Development System 3) syntax definition.
+# Translated from vscode-tads3tools/syntaxes/tads3.tmLanguage.json and
+# vim-tads3tools/syntax/tads3.vim.
+name: TADS3
+file_extensions:
+  - t
+  - h
+scope: source.tads3
+
+# .t files can also be Perl test files, and .h files can be C/C++ headers.
+# The content heuristic below makes this syntax self-selecting for TADS3 files.
+first_line_match: |-
+  (?x)
+  \#charset
+  | \#include\s*[<"]
+  | gameMain\s*:
+  | versionInfo\s*:
+
+contexts:
+  main:
+    - include: comments
+    - include: preprocessor
+    - include: strings
+    - include: numbers
+    - include: keywords
+    - include: operators
+
+  # ─── Comments ──────────────────────────────────────────────────────────────
+
+  comments:
+    - match: //.*$
+      scope: comment.line.double-slash.tads3
+      captures:
+        0: comment.line.double-slash.tads3
+    - match: /\*
+      scope: punctuation.definition.comment.begin.tads3
+      push: block_comment
+
+  block_comment:
+    - meta_scope: comment.block.tads3
+    - match: \*/
+      scope: punctuation.definition.comment.end.tads3
+      pop: true
+    - match: \b(TODO|FIXME|XXX|HACK|NOTE)\b
+      scope: keyword.codetag.tads3
+
+  # ─── Preprocessor ──────────────────────────────────────────────────────────
+
+  preprocessor:
+    - match: '^\s*(#\s*(?:charset|define|undef|error|line|pragma|ifdef|ifndef|elif|else|endif|if\b))'
+      scope: meta.preprocessor.tads3 keyword.control.import.tads3
+    - match: '^\s*(#\s*include)\s*([<"][^">\n]*[>"])'
+      captures:
+        1: meta.preprocessor.include.tads3 keyword.control.import.include.tads3
+        2: string.quoted.other.lt-gt.include.tads3
+
+  # ─── Keywords ──────────────────────────────────────────────────────────────
+
+  keywords:
+    # Type / declaration keywords
+    - match: \b(class|dictionary|enum|function|intrinsic|local|method|operator|property|propertyset|template)\b
+      scope: storage.type.tads3
+
+    # Storage class modifiers
+    - match: \b(extern|export|modify|multimethod|replace|transient)\b
+      scope: storage.modifier.tads3
+
+    # Misc object/member keywords
+    - match: \b(delegated|inherited|new|replaced|object|static)\b
+      scope: keyword.other.tads3
+
+    # Control flow — conditional
+    - match: \b(if|else|switch|case|default)\b
+      scope: keyword.control.conditional.tads3
+
+    # Control flow — loops
+    - match: \b(for|foreach|do|while|in)\b
+      scope: keyword.control.loop.tads3
+
+    # Control flow — statements
+    - match: \b(break|continue|return|goto)\b
+      scope: keyword.control.flow.tads3
+
+    # Exception handling
+    - match: \b(try|catch|finally|throw)\b
+      scope: keyword.control.exception.tads3
+
+    # Built-in language constants
+    - match: \b(nil|true)\b
+      scope: constant.language.tads3
+
+    # Built-in implicit-context identifiers
+    - match: \b(self|targetobj|targetprop|definingobj|argcount|invokee)\b
+      scope: variable.language.tads3
+
+  # ─── Numbers ───────────────────────────────────────────────────────────────
+
+  numbers:
+    # Hexadecimal  0xFF
+    - match: \b0[Xx][0-9A-Fa-f]+\b
+      scope: constant.numeric.hex.tads3
+
+    # Octal  0777
+    - match: \b0[0-7]+\b
+      scope: constant.numeric.octal.tads3
+
+    # Floating-point  1.5  1e10  .5e-3
+    - match: (?:\b\d+\.?\d*|\B\.\d+)(?:[Ee][+-]?\d+)?\b
+      scope: constant.numeric.float.tads3
+
+    # Decimal integer (after float so leading digits are not stolen)
+    - match: \b\d+\b
+      scope: constant.numeric.integer.tads3
+
+  # ─── Operators ─────────────────────────────────────────────────────────────
+
+  operators:
+    - match: '[+\-*/%&|^~<>!?:=.,;]+'
+      scope: keyword.operator.tads3
+
+  # ─── Strings ───────────────────────────────────────────────────────────────
+
+  strings:
+    # Triple-quoted variants must be matched before single-quoted to take priority
+    # when three quotes appear together.
+    - match: '"""'
+      scope: punctuation.definition.string.begin.tads3
+      push: string_triple_double
+    - match: "'''"
+      scope: punctuation.definition.string.begin.tads3
+      push: string_triple_single
+    - match: '"'
+      scope: punctuation.definition.string.begin.tads3
+      push: string_double
+    - match: "'"
+      scope: punctuation.definition.string.begin.tads3
+      push: string_single
+
+  string_double:
+    - meta_scope: string.quoted.double.tads3
+    - match: '"'
+      scope: punctuation.definition.string.end.tads3
+      pop: true
+    - match: \\.
+      scope: invalid.illegal.stray-backslash.tads3
+    - include: string_common
+
+  string_single:
+    - meta_scope: string.quoted.single.tads3
+    - match: "'"
+      scope: punctuation.definition.string.end.tads3
+      pop: true
+    - match: \\.
+      scope: invalid.illegal.stray-backslash.tads3
+    - include: string_common
+
+  string_triple_double:
+    - meta_scope: string.quoted.triple.double.tads3
+    - match: '"""'
+      scope: punctuation.definition.string.end.tads3
+      pop: true
+    - include: string_common
+
+  string_triple_single:
+    - meta_scope: string.quoted.triple.single.tads3
+    - match: "'''"
+      scope: punctuation.definition.string.end.tads3
+      pop: true
+    - include: string_common
+
+  string_common:
+    # <<expr>> embedded expression
+    - match: '<<'
+      scope: punctuation.section.embedded.begin.tads3
+      push: embedded_expr
+
+    # HTML / adv3 tags  <b>  <\p>  </font>  {a dobj}
+    - match: '<[A-Za-z.][^'"<>\n]*>|</[A-Za-z.]+>'
+      scope: entity.name.tag.tads3
+    - match: '\{[A-Za-z0-9/ _-]*\}'
+      scope: entity.name.tag.tads3
+
+    # Escape sequences  \n  \t  \"  \\  \uXXXX  \xXX  \OOO
+    - match: \\[\\<>"' \^vbnrt]
+      scope: constant.character.escape.tads3
+    - match: \\u[0-9A-Fa-f]{4}
+      scope: constant.character.escape.unicode.tads3
+    - match: \\x[0-9A-Fa-f]{2}
+      scope: constant.character.escape.hex.tads3
+    - match: \\[0-7]{3}
+      scope: constant.character.escape.octal.tads3
+
+  embedded_expr:
+    - meta_scope: meta.embedded.tads3
+    - match: '>>'
+      scope: punctuation.section.embedded.end.tads3
+      pop: true
+    - include: keywords
+    - include: numbers
+    - include: comments
